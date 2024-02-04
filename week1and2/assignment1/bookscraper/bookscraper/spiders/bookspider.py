@@ -7,22 +7,22 @@ class BookspiderSpider(scrapy.Spider):
     start_urls = ["https://books.toscrape.com"]
 
     def parse(self, response):
-    """
-    Parses the response from the main page of the 'books.toscrape.com' website.
+        """
+        Parses the response from the main page of the 'books.toscrape.com' website.
 
-    Extracts information about books from the provided HTML response using CSS selectors.
-    For each book, follows the link to its detailed page and invokes the 'parse_book_page'
-    callback to extract additional information.
+        Extracts information about books from the provided HTML response using CSS selectors.
+        For each book, follows the link to its detailed page and invokes the 'parse_book_page'
+        callback to extract additional information.
 
-    Args:
-        response (scrapy.http.Response): The HTTP response object containing the HTML content.
+        Args:
+            response (scrapy.http.Response): The HTTP response object containing the HTML content.
 
-    Yields:
-        scrapy.Request: A scrapy Request object to follow links to individual book pages.
+        Yields:
+            scrapy.Request: A scrapy Request object to follow links to individual book pages.
 
-    Returns:
-        None
-    """
+        Returns:
+            None
+        """
         books = response.css("article.product_pod")
 
         for book in books:
