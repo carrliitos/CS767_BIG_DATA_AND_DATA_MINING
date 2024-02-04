@@ -1,5 +1,4 @@
-import scrapy
-
+import scrapy, hashlib
 
 class BookspiderSpider(scrapy.Spider):
     name = "bookspider"
@@ -55,6 +54,7 @@ class BookspiderSpider(scrapy.Spider):
 
         Yields:
             dict: A dictionary containing the extracted book information.
+                - "ID": A unique ID for the book.
                 - "url": The URL of the book page.
                 - "title": The title of the book.
                 - "category": The category of the book.
@@ -71,8 +71,12 @@ class BookspiderSpider(scrapy.Spider):
         Returns:
             None
         """
+        # Combine URL and title to create a unique ID using hashlib
+        unique_id = hashlib.md5((response.url + response.css(".product_main h1::text").get()).encode('utf-8')).hexdigest()
+
         table_rows = response.css("table tr")
         yield {
+            "ID": unique_id,
             "url": response.url,
             "title": response.css(".product_main h1::text").get(),
             "category": response.xpath("//ul[@class='breadcrumb']/li[@class='active']/preceding-sibling::li[1]/a/text()").get(),
