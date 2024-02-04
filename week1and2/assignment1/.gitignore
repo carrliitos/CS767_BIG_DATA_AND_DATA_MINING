@@ -1,5 +1,7 @@
 bookscraper/bookscraper/data-raw/*
 !bookscraper/bookscraper/data-raw/.gitkeep
+logs/*
+!logs/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
