@@ -1,3 +1,6 @@
+bookscraper/bookscraper/data-raw/*
+!bookscraper/bookscraper/data-raw/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
