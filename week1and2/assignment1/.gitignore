@@ -1,6 +1,6 @@
 bookscraper/
-top_1000/data-raw/*
-!top_1000/data-raw/.gitkeep
+top_1000/top_1000/data-raw/*
+!top_1000/top_1000/data-raw/.gitkeep
 logs/*
 !logs/.gitkeep
 
