@@ -1,14 +1,16 @@
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
+import uuid
 
 def main():
     titles = []
     years = []
     ratings = []
     ranks = []
+    unique_ids = []
 
-    with open("data-raw/top_1000.html") as fp:
+    with open("../data-raw/top_1000.html") as fp:
         soup = BeautifulSoup(fp, "html.parser")
 
     movie_divs = soup.find_all('div', class_='lister-item')
@@ -18,6 +20,8 @@ def main():
         year_tag = movie_div.find('span', class_='lister-item-year')
         rating_tag = movie_div.find('span', class_='ipl-rating-star__rating')
         rank_tag = movie_div.find('span', class_='lister-item-index unbold text-primary')
+
+        unique_id = str(uuid.uuid4())
 
         movie_title = title_tag.text
         year_text = year_tag.text.strip('()')
@@ -29,13 +33,13 @@ def main():
         years.append(numeric_year)
         ratings.append(movie_rating)
         ranks.append(movie_rank)
+        unique_ids.append(unique_id)
 
-    data = {'Title': titles, 'Year': years, 'Rating': ratings, 'Rank': ranks}
+    data = {'ID': unique_ids, 'Title': titles, 'Year': years, 'Rating': ratings, 'Rank': ranks}
     df = pd.DataFrame(data)
 
-    with open("./data-raw/movie_data.csv", "wb") as data_file:
+    with open("../data-raw/movie_data.csv", "wb") as data_file:
         df.to_csv(data_file, index=False)
-
 
 if __name__ == '__main__':
     main()
