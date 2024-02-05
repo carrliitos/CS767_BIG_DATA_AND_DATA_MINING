@@ -1,5 +1,4 @@
-bookscraper/bookscraper/data-raw/*
-!bookscraper/bookscraper/data-raw/.gitkeep
+bookscraper/
 logs/*
 !logs/.gitkeep
 
