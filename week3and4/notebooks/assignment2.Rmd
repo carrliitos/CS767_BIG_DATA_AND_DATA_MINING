@@ -1,0 +1,228 @@
+---
+title: "CS-767 Assignment 2"
+author: "Benzon Carlitos Salazar"
+date: "2024-02-18"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(magrittr)
+```
+
+## Read Data
+
+```{r read_data}
+movie_data_df <-
+  readr::read_csv(here::here("data", "movie_data.csv"), show_col_types = FALSE)
+summary(movie_data_df)
+
+rt_movie_data_df <-
+  readr::read_csv(here::here("data", "rt_movie_data.csv"), show_col_types = FALSE)
+summary(rt_movie_data_df)
+```
+
+## Schema definition
+
+In both tables, each row represents a movie, with columns representing different attributes such as ID, title, year, 
+rating, and rank.
+
+### `movie_data.csv`
+
+```{r movie_data_schema}
+movie_data_df %>%
+  dplyr::slice_head(n = 10) %>%
+  knitr::kable()
+```
+
+- ID: UUID (Universally Unique Identifier)
+- Title: String (Movie title)
+- Year: Integer (Year of release)
+- Rating: Float (Movie rating)
+- Rank: Integer (Ranking of the movie)
+
+### `rt_movie_data.csv`
+
+```{r rt_movie_data_schema}
+rt_movie_data_df %>%
+  dplyr::slice_head(n = 10) %>%
+  knitr::kable()
+```
+
+- ID: UUID (Universally Unique Identifier)
+- Title: String (Movie title)
+- Year: Integer (Year of release)
+- Rating: Integer (Movie rating)
+- Rank: Integer (Ranking of the movie)
+
+## Missing Values
+
+### `movie_data.csv` schema
+
+```{r missing_values_for_movie_data}
+missin_values_movie_data <-
+  movie_data_df %>%
+  dplyr::summarise_all(list(~ sum(is.na(.))))
+
+missin_values_movie_data %>%
+  knitr::kable()
+```
+
+### `rt_movie_data.csv` schema
+
+```{r missing_values_for_rt_movie_data}
+missin_values_rt_movie_data <-
+  rt_movie_data_df %>%
+  dplyr::summarise_all(list(~ sum(is.na(.))))
+
+missin_values_rt_movie_data %>%
+  knitr::kable()
+```
+
+There are no missing data in both tables. Each column in the tables contains values for all rows, with no instances 
+where a value is missing (i.e., no NA or NULL values). This indicates that the data is complete and there are no missing 
+values to be addressed in the analysis.
+
+If there happens to be missing values then,
+
+- for the `ID` column, theoretically, this column does not allow any NULL values because this is an identifier. If these 
+were missing, this tells us that there are no corresponding movies, in which case we would just remove these rows.
+- for the `Title` column, because we have no way of determining what movie the attributes would correspond to, we can just 
+use a default value of `Unknown Movie` or something similar.
+- for the `Year` column, since these are numeric values, we can use a default `1601` value to indicate any missing values. In this 
+case, since we know that no good movies existed in year 1601, it is a good indicator of missing values.
+- for the `Rating` column, we may use the average for that column to fill in missing values. Since the table is ordered 
+by ranking, we may get away with finding a somewhat correct rating based on the rows position.
+- for the `Rank` column, since the rows are already ordered, we can simply use the rows index to fill in any missing 
+values in the `Rank` column.
+
+## Column classification
+
+- ID: UUID (Universally Unique Identifier)
+- Title: String (Movie title)
+- Year: Integer (Year of release)
+- Rating: Integer (Movie rating)
+- Rank: Integer (Ranking of the movie)
+
+## Character Column Attribution Report for `Title` column in `movie_data.csv`
+
+```{r helper_function}
+# Helper function to calculate average, min, and max length of textual values
+textual_stats <- function(x) {
+  if(is.character(x)) {
+    avg_length <- mean(nchar(x), na.rm = TRUE)
+    min_length <- min(nchar(x), na.rm = TRUE)
+    max_length <- max(nchar(x), na.rm = TRUE)
+    return(data.frame(avg_length = avg_length, min_length = min_length, max_length = max_length))
+  } else {
+    return(NULL)
+  }
+}
+```
+
+
+```{r movie_data_col_title}
+movie_data_summary <-
+  movie_data_df %>%
+  dplyr::summarise(dplyr::across(Title, textual_stats))
+```
+
+- Average length of characters in `Title` column: `r movie_data_summary$Title$avg_length` characters.
+- Minimum length of characters in `Title` column: `r movie_data_summary$Title$min_length` character.
+- Maximum length of characters in `Title` column: `r movie_data_summary$Title$max_length` characters.
+
+## Character Column Attribution Report for `Title` column in `rt_`movie_data.csv`
+
+```{r rt_movie_data_col_title}
+rt_movie_data_summary <-
+  rt_movie_data_df %>%
+  dplyr::summarise(dplyr::across(Title, textual_stats))
+```
+
+- Average length of characters in `Title` column: `r rt_movie_data_summary$Title$avg_length` characters.
+- Minimum length of characters in `Title` column: `r rt_movie_data_summary$Title$min_length` character.
+- Maximum length of characters in `Title` column: `r rt_movie_data_summary$Title$max_length` characters.
+
+## Outliers
+
+### Histogram for the Rating column in `movie_data.csv`
+
+```{r outliers_movie_data}
+ggplot2::ggplot(movie_data_df, ggplot2::aes(x = Rating)) +
+  ggplot2::geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  ggplot2::labs(title = "Distribution of Ratings", x = "Rating", y = "Frequency")
+```
+
+### Histogram for the length of the Title column in `movie_data.csv`
+
+```{r outliers_title_movie_data}
+movie_data_df$Title_length <- nchar(movie_data_df$Title)
+
+ggplot2::ggplot(movie_data_df, ggplot2::aes(x = Title_length)) +
+  ggplot2::geom_histogram(binwidth = 5, fill = "lightgreen", color = "black") +
+  ggplot2::labs(title = "Distribution of Title Lengths", x = "Length", y = "Frequency")
+```
+
+### Histogram for the Rating column in `rt_movie_data.csv`
+
+```{r outliers_rt_movie_data}
+ggplot2::ggplot(rt_movie_data_df, ggplot2::aes(x = Rating)) +
+  ggplot2::geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  ggplot2::labs(title = "Distribution of Ratings", x = "Rating", y = "Frequency")
+```
+
+### Histogram for the length of the Title column in `movie_data.csv`
+
+```{r outliers_title_rt_movie_data}
+rt_movie_data_df$Title_length <- nchar(rt_movie_data_df$Title)
+
+ggplot2::ggplot(rt_movie_data_df, ggplot2::aes(x = Title_length)) +
+  ggplot2::geom_histogram(binwidth = 5, fill = "lightgreen", color = "black") +
+  ggplot2::labs(title = "Distribution of Title Lengths", x = "Length", y = "Frequency")
+```
+
+We don't really see much outliers, except for the length of characters in titles. The ratings seem to be correctly 
+formatted and are within the range. The only difference is the fact that ratings in `movie_data.csv` are in the range of 
+1 - 10, while the ratings in the `rt_movie_data.csv` are in the range of 0 - 100.
+
+We do see ratings around 70 - 75 in the `rt_movie_data.csv`, and quite a few of 100s in the `rt_movie_data.csv`. What we 
+can do to match the range of ratings for both dataframes is to divide each rating in the `rt_movie_data.csv` by 10 to 
+standardize it to be between 0 - 10. Then, we can re-run the histogram and see if it worked.
+
+```{r standardize_rt}
+rt_movie_data_df <-
+  rt_movie_data_df %>%
+  dplyr::mutate(Rating = Rating / 10)
+
+ggplot2::ggplot(rt_movie_data_df, ggplot2::aes(x = Rating)) +
+  ggplot2::geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black") +
+  ggplot2::labs(title = "Distribution of Standardized Ratings", x = "Rating", y = "Frequency")
+```
+
+After standardization, we now see that the majority of ratings are in the 9.5 range.
+
+## Formatting
+
+All the columns do follow the same formatting. For example, all of the `Year` values are properly formatted as `YYY`. 
+The `Rank` values are all integers, and so are the `Rating` values.
+
+## Additional Data Quality Problems
+
+Upon initial review, both datasets appear to be free of inherent data quality issues. The only discrepancy noted is the 
+difference in ratings between the two tables, indicating a potential inconsistency in the movies listed. This suggests 
+that one table may include movies not present in the other, highlighting a need for further investigation to ensure data 
+completeness and consistency across the datasets.
+
+## Packages used
+
+The following R packages are used in this report:
+
+```{r packages_used, echo=FALSE}
+packages <- renv::dependencies()$Package %>% as.data.frame()
+packages %>% dplyr::distinct() %>% as.list()
+```
+
+```{r clean, include=FALSE, echo=FALSE}
+rm(list = ls(all.names = TRUE)) # clear all objects including hidden objects
+invisible(gc()) # free up memory
+```
+
