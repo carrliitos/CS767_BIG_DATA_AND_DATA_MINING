@@ -42,3 +42,7 @@ attributes in the set S.
 	- Do you see any other data quality problems with this attribute? 
 4. List any software tools you have used to understand and clean the above data. For example, if you have used a particular 
 Python package, list the name of the package. 
+
+## Deliverables
+
+By the deadline, please put the report in pdf or google doc format on your project's page and provide a link to it. 
